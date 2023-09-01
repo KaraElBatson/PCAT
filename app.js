@@ -2,8 +2,28 @@ const express = require('express');
 const ejs = require('ejs');
 const path = require('path');
 
-const app = express();
+const dotenv = require('dotenv');
 
+
+dotenv.config();
+
+conn = () => {
+  mongoose
+    .connect(process.env.DB_URI, {
+      dbName: 'lenslight_tr',
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => {
+      console.log('Connected to the DB succesully');
+    })
+    .catch((err) => {
+      console.log(`DB connection err:, ${err}`);
+    });
+};
+
+
+const app = express();
 //TEMPLATE ENGINE
 app.set('view engine', 'ejs');
 
@@ -22,7 +42,7 @@ app.get('/add', (req, res) => {
   res.render('add');
 });
 
-const port = 3000;
+const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Sunucu ${port} portunda baslatildi..`);
 });
