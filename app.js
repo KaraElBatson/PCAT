@@ -1,26 +1,25 @@
 const express = require('express');
 const ejs = require('ejs');
 const path = require('path');
+const mongoose = require('mongoose')
 
 const dotenv = require('dotenv');
 
 
 dotenv.config();
 
-conn = () => {
-  mongoose
-    .connect(process.env.DB_URI, {
-      dbName: 'lenslight_tr',
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(() => {
-      console.log('Connected to the DB succesully');
-    })
-    .catch((err) => {
+
+ try{ mongoose.connect(process.env.DB_URL, {
+  dbName: 'lenslight_tr',
+
+})
+console.log('Connected to the DB succesully');
+  
+ }
+catch(err){
       console.log(`DB connection err:, ${err}`);
-    });
-};
+    };
+
 
 
 const app = express();
