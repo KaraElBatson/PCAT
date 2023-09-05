@@ -1,47 +1,56 @@
+//NODE MODULES
 const express = require('express');
-const ejs = require('ejs');
+const mongoose= require('mongoose');
 const path = require('path');
-const mongoose = require('mongoose')
+const ejs =require('ejs');
 
+const Photo =require('./models/photo');
 const dotenv = require('dotenv');
-
-
 dotenv.config();
-
-
- try{ mongoose.connect(process.env.DB_URL, {
-  dbName: 'lenslight_tr',
-
-})
-console.log('Connected to the DB succesully');
-  
- }
-catch(err){
-      console.log(`DB connection err:, ${err}`);
-    };
-
-
-
 const app = express();
-//TEMPLATE ENGINE
-app.set('view engine', 'ejs');
+
+
+// CONNECT MONGODB
+mongoose.connect(process.env.DB_URL)
+  .then(() => {
+    console.log('db çalıştı');
+  })
+  .catch((err) => {
+    console.error('DB Connection Error:', err);
+  });
+
+
+//TEMPLATE ENGİNE
+app.set("view engine","ejs");
 
 //MIDDLEWARES
-app.use(express.static('public'));
+app.use(express.static('public'))
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 
 //ROUTES
-app.get('/', (req, res) => {
 
-  res.render('index');
-});
-app.get('/about', (req, res) => {
-  res.render('about');
-});
-app.get('/add', (req, res) => {
-  res.render('add');
+app.get('/',async (req,res)=>{
+    const photos = await Photo.find({})
+    res.render("index",{
+      photos
+    })
 });
 
-const port = process.env.PORT;
-app.listen(port, () => {
-  console.log(`Sunucu ${port} portunda baslatildi..`);
+app.get('/about',(req,res)=>{
+    res.render("about")
+});
+app.get('/add',(req,res)=>{
+    res.render("add")
+});
+
+app.post('/photos',async (req,res)=>{
+  await Photo.create(req.body)
+  res.redirect('/');
+});
+
+
+const port =3000;
+app.listen(port, ()=>{
+    console.log(`sunucu ${port} portunda başlatıldı..`)
 });
