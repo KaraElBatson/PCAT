@@ -9,6 +9,8 @@ const fs = require('fs'); //klasör oluşturma
 const Photo =require('./models/Photo');
 const dotenv = require('dotenv');
 dotenv.config();
+const photoController = require('./controllers/photoControllers');
+const pageController =require('./controllers/pageControllers');
 const app = express();
 // CONNECT MONGODB
 mongoose.connect(process.env.DB_URL)
@@ -32,63 +34,14 @@ app.use(methodOverride('_method',{
 
 
 //ROUTES
-app.get('/',async (req,res)=>{
-    const photos = await Photo.find({}).sort('-uploadeAt');
-    res.render("index",{
-      photos
-    })
-});
-app.get('/photos/:id', async(req,res)=>{
-  const photo = await Photo.findById(req.params.id)//resmin ıd si ile sayfaya gitme
-  res.render('photo',{
-    photo
-  })
-});
-app.get('/about',(req,res)=>{
-    res.render("about")
-});
-app.get('/add',(req,res)=>{
-    res.render("add")
-});
-
-app.post('/photos',async (req,res)=>{   //veritabanına görsel ve veri belli formatta yollama
-    // console.log(req.files.image); //gönderdiğimiz görsellerle ilgili verilere ulaşma
-  // await Photo.create(req.body)
-  // res.redirect('/');
-
-  const  uploadeDir = 'public/uploads';
-
-  if(!fs.existsSync(uploadeDir)){ 
-    fs.mkdirSync(uploadeDir)
-    //upload klasörü varsa sorun yok,yoksa yeni bir tane oluştur.
-  }
-
-  let uploadeImage = req.files.image
-  let uploadPath =  __dirname + '/public/uploads/' + uploadeImage.name;  //görselin yolunu bulma
-
-  uploadeImage.mv(uploadPath, async ()=> {
-  await Photo.create({
-    ...req.body,
-    image:'/uploads/' + uploadeImage.name
-  });
-  res.redirect('/');
-  });
-});
-app.get('/photos/edit/:id', async (req, res) => { //resimlerden edit sayfalarına gitme 
-  const photo = await Photo.findOne({ _id: req.params.id });
-  res.render('edit', {
-    photo,
-  });
-});
-app.put('/photos/:id', async (req, res) => { //resimlerde yeni verileri kaydetme
-  const photo = await Photo.findOne({ _id: req.params.id });
-  photo.title = req.body.title
-  photo.description = req.body.description
-  photo.save()
-  
-
-  res.redirect(`/photos/${req.params.id}`)
-});
+app.get('/about',pageController.getAboutPage);
+app.get('/add',pageController.getAddPage);
+app.get('/photos/edit/:id',pageController.getEditPage);
+app.get('/',photoController.getAllPhotos);
+app.get('/photos/:id',photoController.getPhoto );
+app.post('/photos',photoController.creatPhoto);
+app.put('/photos/:id', photoController.updatePhoto);
+app.delete('/photos/:id', photoController.deletePhoto);
 
 const port =3000;
 app.listen(port, ()=>{
