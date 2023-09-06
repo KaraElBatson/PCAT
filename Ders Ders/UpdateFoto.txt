@@ -1,0 +1,9 @@
+edit.ejs 37-  
+<form method="post" action="/photos/<%= photo._id%>?_method=PUT" class="tm-contact-form" encType="multipart/form-data">
+bununla birlikte bir resme edit yapıldıktan sonra resmin sayfasına gider
+app.js 83-
+app.put('/photos/:id', async (req, res) => {
+//resimlerde girilen  yeni verileri kaydetme
+app.js 77
+app.get('/photos/edit/:id', async (req, res) => { 
+//resimlerden edit sayfalarına gitme 
